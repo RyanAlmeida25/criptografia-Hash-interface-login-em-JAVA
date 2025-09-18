@@ -2,21 +2,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Scanner;
 
-class Admin {
-    String login = "admin";
-    String senha = "admin";
-}
-
-class Usuario {
-    String login;
-    String senhaHash;
-
-    Usuario(String login, String senhaHash) {
-        this.login = login;
-        this.senhaHash = senhaHash;
-    }
-}
-
 public class Main {
 
     public static String gerarHash(String senha) {
