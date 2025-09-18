@@ -4,39 +4,24 @@ import java.util.Scanner;
 
 public class Main {
 
-    public static String gerarHash(String senha) {
-        try {
-            MessageDigest gerador = MessageDigest.getInstance("SHA-256");
-            byte[] hashBytes = gerador.digest(senha.getBytes());
-
-            StringBuilder builder = new StringBuilder();
-            for (byte b : hashBytes) {
-                builder.append(String.format("%02x", b));
-            }
-            return builder.toString();
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
 
-        Admin u = new Admin();
+
+        String[] credenciais = Login.capturarCredenciais(scanner);
+        String loginInput = credenciais[0];
+        String senhaInput = credenciais[1];
+
+        Admin admin = new Admin();
         Usuario[] usuarios = new Usuario[2];
 
-        System.out.print("Login: ");
-        String loginInput = scanner.nextLine();
-        System.out.print("Senha: ");
-        String senhaInput = scanner.nextLine();
 
-        if (u.login.equals(loginInput) && u.senha.equals(senhaInput)) {
+        if (admin.login.equals(loginInput) && admin.senha.equals(senhaInput)) {
             System.out.println("\nLogin de administrador efetuado");
-            System.out.print("Gostaria de cadastrar novos usuarios? s/n: ");
+            System.out.print("Gostaria de cadastrar novos usuários? s/n: ");
             String entrada = scanner.nextLine().toLowerCase();
 
             if (entrada.equals("s")) {
-
                 for (int i = 0; i < 2; i++) {
                     System.out.println("\nCadastro do usuário " + (i + 1));
                     System.out.print("Login: ");
@@ -44,7 +29,7 @@ public class Main {
                     System.out.print("Senha: ");
                     String senhaCadastro = scanner.nextLine();
 
-                    usuarios[i] = new Usuario(loginCadastro, gerarHash(senhaCadastro));
+                    usuarios[i] = new Usuario(loginCadastro, Criptografia.gerarHash(senhaCadastro));
                 }
 
                 System.out.println("\nUsuários cadastrados:");
@@ -52,47 +37,43 @@ public class Main {
                     System.out.println("Login: " + usr.login + " | Senha (hash): " + usr.senhaHash);
                 }
 
-                System.out.print("\nLogar como usuario? s/n: ");
+                System.out.print("\nDeseja logar como usuário? s/n: ");
                 String entrada2 = scanner.nextLine().toLowerCase();
 
                 if (entrada2.equals("s")) {
-
-                    System.out.print("\nLogin: ");
-                    String loginInput2 = scanner.nextLine();
-                    System.out.print("Senha: ");
-                    String senhaInput2 = scanner.nextLine();
+                    String[] credenciaisUsuario = Login.capturarCredenciais(scanner);
+                    String loginUser = credenciaisUsuario[0];
+                    String senhaUser = credenciaisUsuario[1];
+                    String hashInput = Criptografia.gerarHash(senhaUser);
 
                     boolean exist = false;
-                    String hashInput = gerarHash(senhaInput2);
-
                     for (Usuario usr : usuarios) {
-                        if (usr.login.equals(loginInput2) && usr.senhaHash.equals(hashInput)) {
-                            System.out.printf("\nLogin efetuado com sucesso! Bem vindo %s\n", usr.login);
+                        if (usr.login.equals(loginUser) && usr.senhaHash.equals(hashInput)) {
+                            System.out.printf("\nLogin efetuado com sucesso! Bem-vindo %s\n", usr.login);
                             exist = true;
-                            System.out.printf("Escreva uma mensagem e enviar para %s: ", usuarios[1].login);
+
+                            System.out.printf("Escreva uma mensagem para %s: ", usuarios[1].login);
                             String mensagem = scanner.nextLine();
-                            String mensagemCript = gerarHash(mensagem);
+                            String mensagemCript = Criptografia.gerarHash(mensagem);
+
                             System.out.print("\nDefina a senha para a mensagem: ");
                             String senhaMensagem = scanner.nextLine();
 
-                            System.out.print("\nVoltar ao login? s/n: ");
+                            System.out.print("\nDeseja voltar ao login? s/n: ");
                             String entrada3 = scanner.nextLine().toLowerCase();
 
                             if (entrada3.equals("s")) {
-                                System.out.print("\nLogin: ");
-                                String loginInput3 = scanner.nextLine();
-                                System.out.print("Senha: ");
-                                String senhaInput3 = scanner.nextLine();
-
-                                boolean exist2 = false;
-                                String hashInput2 = gerarHash(senhaInput3);
+                                String[] credenciaisUsuario2 = Login.capturarCredenciais(scanner);
+                                String loginUser2 = credenciaisUsuario2[0];
+                                String senhaUser2 = credenciaisUsuario2[1];
+                                String hashInput2 = Criptografia.gerarHash(senhaUser2);
 
                                 for (Usuario usr2 : usuarios) {
-                                    if (usr2.login.equals(loginInput3) && usr2.senhaHash.equals(hashInput2)) {
-                                        System.out.printf("\nLogin efetuado com sucesso! Bem vindo %s\n", usr2.login);
-                                        exist2 = true;
-                                        System.out.printf("O Usuario %s te enviou uma mensagem: \n", usr.login);
+                                    if (usr2.login.equals(loginUser2) && usr2.senhaHash.equals(hashInput2)) {
+                                        System.out.printf("\nLogin efetuado com sucesso! Bem-vindo %s\n", usr2.login);
+                                        System.out.printf("O usuário %s te enviou uma mensagem:\n", usr.login);
                                         System.out.println(mensagemCript);
+
                                         System.out.print("\nDigite a senha para descriptografar: ");
                                         String entradaSenha = scanner.nextLine();
 
@@ -115,11 +96,9 @@ public class Main {
                 } else {
                     System.out.println("\nSaindo...");
                 }
-
             } else {
                 System.out.println("\nSaindo...");
             }
-
         } else {
             System.out.println("\nErro: login ou senha inválidos");
         }
